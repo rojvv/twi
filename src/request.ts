@@ -78,7 +78,7 @@ export async function request({
     ? await auth.getAuthHeader(url.href, method)
     : undefined;
   const controller = new AbortController();
-  setTimeout(controller.abort, 60000);
+  setTimeout(() => controller.abort, 60000);
   const response = await fetchWithRetries(
     url.toString(),
     {
@@ -120,7 +120,7 @@ export async function* stream<T>(args: RequestOptions): AsyncGenerator<T> {
   let buf = "";
   try {
     for await (const chunk of body) {
-      buf += chunk.toString();
+      buf += new TextDecoder().decode(chunk);
       const lines = buf.split("\r\n");
       for (const [i, line] of lines.entries()) {
         if (i === lines.length - 1) {
