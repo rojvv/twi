@@ -65,5 +65,5 @@ router.get("/revoke", async (ctx) => {
 });
 
 app.use(router.routes());
-await app.listen({ port: 3000 });
 console.log(`Go here to login: http://127.0.0.1:3000/login`);
+await app.listen({ port: 3000 });
