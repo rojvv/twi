@@ -252,9 +252,7 @@ export class OAuth2User implements AuthClient {
     if (!callback) throw new Error("callback required");
     if (!scopes) throw new Error("scopes required");
     if (options.code_challenge_method === "s256") {
-      const code_verifier = base64URLEncode(
-        new TextDecoder().decode(crypto.getRandomValues(new Uint8Array(32))),
-      );
+      const code_verifier = base64URLEncode(crypto.randomUUID());
       this.#code_verifier = code_verifier;
       this.#code_challenge = base64URLEncode(await sha256(code_verifier));
     } else {
