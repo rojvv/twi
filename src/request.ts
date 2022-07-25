@@ -57,6 +57,7 @@ class TwitterResponseError extends Error {
     this.statusText = statusText;
     this.headers = Object.fromEntries(headers);
     this.error = error;
+    this.message = JSON.stringify(this.error, null, 2);
   }
 }
 
