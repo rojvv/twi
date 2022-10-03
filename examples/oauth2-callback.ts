@@ -1,10 +1,12 @@
 // Copyright 2021 Twitter, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import "https://deno.land/x/dotenv@v3.2.0/load.ts";
-import { cleanEnv, str } from "https://deno.land/x/envalid@v0.0.3/mod.ts";
-import { Application, Router } from "https://deno.land/x/oak@v10.5.1/mod.ts";
+import { config } from "std/dotenv/mod.ts";
+import { cleanEnv, str } from "envalid";
+import { Application, Router } from "oak";
 import { auth, Client } from "../src/mod.ts";
+
+await config({ export: true });
 
 const env = cleanEnv(Deno.env.toObject(), {
   CLIENT_ID: str(),
