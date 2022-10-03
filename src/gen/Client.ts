@@ -35,7 +35,11 @@ import {
   getBatchComplianceJob,
   getOpenApiSpec,
   getRules,
+  getTweetsComplianceStream,
+  getTweetsFirehoseStream,
+  getTweetsSample10Stream,
   getUserListMemberships,
+  getUsersComplianceStream,
   getUsersIdBookmarks,
   hideReplyById,
   listAddMember,
@@ -102,8 +106,8 @@ export class Client {
     auth: string | AuthClient,
     requestOptions?: Partial<RequestOptions>,
   ) {
-    this.version = "1.1.0";
-    this.twitterApiOpenApiVersion = "2.45";
+    this.version = "1.2.0";
+    this.twitterApiOpenApiVersion = "2.51";
     this.#auth = typeof auth === "string" ? new OAuth2Bearer(auth) : auth;
     this.#defaultRequestOptions = {
       ...requestOptions,
@@ -261,6 +265,48 @@ export class Client {
         ...this.#defaultRequestOptions,
         ...request_options,
         endpoint: `/2/compliance/jobs/${id}`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Tweets Compliance stream
+    *
+
+    * Streams 100% of compliance data for Tweets
+    * @param params - The params for getTweetsComplianceStream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsComplianceStream: (
+      params: TwitterParams<getTweetsComplianceStream>,
+      request_options?: Partial<RequestOptions>,
+    ): AsyncGenerator<TwitterResponse<getTweetsComplianceStream>> =>
+      stream<TwitterResponse<getTweetsComplianceStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/compliance/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Users Compliance stream
+    *
+
+    * Streams 100% of compliance data for Users
+    * @param params - The params for getUsersComplianceStream
+    * @param request_options - Customize the options for this request
+    */
+    getUsersComplianceStream: (
+      params: TwitterParams<getUsersComplianceStream>,
+      request_options?: Partial<RequestOptions>,
+    ): AsyncGenerator<TwitterResponse<getUsersComplianceStream>> =>
+      stream<TwitterResponse<getUsersComplianceStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/users/compliance/stream`,
         params,
         method: "GET",
       }),
@@ -875,6 +921,27 @@ export class Client {
       }),
 
     /**
+    * Firehose stream
+    *
+
+    * Streams 100% of public Tweets.
+    * @param params - The params for getTweetsFirehoseStream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsFirehoseStream: (
+      params: TwitterParams<getTweetsFirehoseStream>,
+      request_options?: Partial<RequestOptions>,
+    ): AsyncGenerator<TwitterResponse<getTweetsFirehoseStream>> =>
+      stream<TwitterResponse<getTweetsFirehoseStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/firehose/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
     * Sample stream
     *
 
@@ -891,6 +958,27 @@ export class Client {
         ...this.#defaultRequestOptions,
         ...request_options,
         endpoint: `/2/tweets/sample/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Sample 10% stream
+    *
+
+    * Streams a deterministic 10% of public Tweets.
+    * @param params - The params for getTweetsSample10Stream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsSample10Stream: (
+      params: TwitterParams<getTweetsSample10Stream>,
+      request_options?: Partial<RequestOptions>,
+    ): AsyncGenerator<TwitterResponse<getTweetsSample10Stream>> =>
+      stream<TwitterResponse<getTweetsSample10Stream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/sample10/stream`,
         params,
         method: "GET",
       }),
@@ -1531,10 +1619,10 @@ export class Client {
       }),
 
     /**
-    * Returns User objects that follow a List by the provided User ID
+    * Followers by User ID
     *
 
-    * Returns a list of Users that follow the provided User ID
+    * Returns a list of Users who are followers of the specified User ID.
     * @param id - The ID of the User to lookup.
     * @param params - The params for usersIdFollowers
     * @param request_options - Customize the options for this request
