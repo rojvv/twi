@@ -3,5 +3,7 @@
     "files": {
       "exclude": ["src/gen/openapi-types.ts"]
     }
-  }
+  },
+  // For examples
+  "importMap": "./import_map.json"
 }

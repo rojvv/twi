@@ -1,6 +1,7 @@
 # Twi [![Deno](https://shield.deno.dev/x/twi)](https://deno.land/x/twi) [![v2](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.twitter.com/en/docs/twitter-api)
 
-> Twitter API client for Deno ported from [twitter-api-typescript-sdk](https://github.com/twitterdev/twitter-api-typescript-sdk).
+> Twitter API client for Deno ported from
+> [twitter-api-typescript-sdk](https://github.com/twitterdev/twitter-api-typescript-sdk).
 
 ## Example
 
@@ -17,4 +18,5 @@ for await (const tweet of stream) {
 }
 ```
 
-Check out [examples/](./examples) for more examples or see [this real-word bot](https://github.com/roj1512/rtwtrbt).
+Check out [examples/](./examples) for more examples or see
+[this real-word bot](https://github.com/roj1512/rtwtrbt).

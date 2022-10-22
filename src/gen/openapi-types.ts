@@ -3155,6 +3155,48 @@ export interface operations {
       };
     };
   };
+  /** Streams 100% of public Tweets. */
+  getTweetsFirehoseStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Tweets will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Tweets will be provided. */
+        end_time?: string;
+        /** A comma separated list of Tweet fields to display. */
+        "tweet.fields"?: components["parameters"]["TweetFieldsParameter"];
+        /** A comma separated list of fields to expand. */
+        expansions?: components["parameters"]["TweetExpansionsParameter"];
+        /** A comma separated list of Media fields to display. */
+        "media.fields"?: components["parameters"]["MediaFieldsParameter"];
+        /** A comma separated list of Poll fields to display. */
+        "poll.fields"?: components["parameters"]["PollFieldsParameter"];
+        /** A comma separated list of User fields to display. */
+        "user.fields"?: components["parameters"]["UserFieldsParameter"];
+        /** A comma separated list of Place fields to display. */
+        "place.fields"?: components["parameters"]["PlaceFieldsParameter"];
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["StreamingTweetResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
   /** Streams a deterministic 1% of public Tweets. */
   sampleStream: {
     parameters: {
@@ -3752,6 +3794,37 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["UserComplianceStreamResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
+  /** Streams 100% of compliance data for Users */
+  getUsersComplianceStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the User Compliance events will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the User Compliance events will be provided. */
+        end_time?: string;
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json":
+            components["schemas"]["UserComplianceStreamResponse"];
         };
       };
       /** The request has failed. */
