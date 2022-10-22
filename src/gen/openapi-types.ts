@@ -6,7 +6,7 @@
  * Do not make direct changes to the file.
  */
 
-export interface paths {
+ export interface paths {
   "/2/compliance/jobs": {
     /** Returns recent Compliance Jobs for a given job type and optional job status */
     get: operations["listBatchComplianceJobs"];
@@ -81,6 +81,10 @@ export interface paths {
     /** Causes the User to create a Tweet under the authorized account. */
     post: operations["createTweet"];
   };
+  "/2/tweets/compliance/stream": {
+    /** Streams 100% of compliance data for Tweets */
+    get: operations["getTweetsComplianceStream"];
+  };
   "/2/tweets/counts/all": {
     /** Returns Tweet Counts that match a search query. */
     get: operations["tweetCountsFullArchiveSearch"];
@@ -89,9 +93,21 @@ export interface paths {
     /** Returns Tweet Counts from the last 7 days that match a search query. */
     get: operations["tweetCountsRecentSearch"];
   };
+  "/2/tweets/firehose/stream": {
+    /** Streams 100% of public Tweets. */
+    get: operations["getTweetsFirehoseStream"];
+  };
+  "/2/tweets/label/stream": {
+    /** Streams 100% of labeling events applied to Tweets */
+    get: operations["getTweetsLabelStream"];
+  };
   "/2/tweets/sample/stream": {
     /** Streams a deterministic 1% of public Tweets. */
     get: operations["sampleStream"];
+  };
+  "/2/tweets/sample10/stream": {
+    /** Streams a deterministic 10% of public Tweets. */
+    get: operations["getTweetsSample10Stream"];
   };
   "/2/tweets/search/all": {
     /** Returns Tweets that match a search query. */
@@ -145,6 +161,10 @@ export interface paths {
     /** This endpoint returns information about a User. Specify User by username. */
     get: operations["findUserByUsername"];
   };
+  "/2/users/compliance/stream": {
+    /** Streams 100% of compliance data for Users */
+    get: operations["getUsersComplianceStream"];
+  };
   "/2/users/me": {
     /** This endpoint returns information about the requesting User. */
     get: operations["findMyUser"];
@@ -180,7 +200,7 @@ export interface paths {
     delete: operations["listUserUnfollow"];
   };
   "/2/users/{id}/followers": {
-    /** Returns a list of Users that follow the provided User ID */
+    /** Returns a list of Users who are followers of the specified User ID. */
     get: operations["usersIdFollowers"];
   };
   "/2/users/{id}/following": {
@@ -303,9 +323,8 @@ export interface components {
       };
       errors?: components["schemas"]["Problem"][];
     };
-    CashtagEntity:
-      & components["schemas"]["EntityIndicesInclusiveExclusive"]
-      & components["schemas"]["CashtagFields"];
+    CashtagEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] &
+      components["schemas"]["CashtagFields"];
     /** @description Represent the portion of text recognized as a Cashtag, and its start and end position within the text. */
     CashtagFields: {
       /** @example TWTR */
@@ -509,24 +528,23 @@ export interface components {
       }[];
     };
     FullTextEntities: {
-      annotations?:
-        (components["schemas"]["EntityIndicesInclusiveInclusive"] & {
-          /**
-           * @description Text used to determine annotation.
-           * @example Barack Obama
-           */
-          normalized_text?: string;
-          /**
-           * Format: double
-           * @description Confidence factor for annotation type.
-           */
-          probability?: number;
-          /**
-           * @description Annotation type.
-           * @example Person
-           */
-          type?: string;
-        })[];
+      annotations?: (components["schemas"]["EntityIndicesInclusiveInclusive"] & {
+        /**
+         * @description Text used to determine annotation.
+         * @example Barack Obama
+         */
+        normalized_text?: string;
+        /**
+         * Format: double
+         * @description Confidence factor for annotation type.
+         */
+        probability?: number;
+        /**
+         * @description Annotation type.
+         * @example Person
+         */
+        type?: string;
+      })[];
       cashtags?: components["schemas"]["CashtagEntity"][];
       hashtags?: components["schemas"]["HashtagEntity"][];
       mentions?: components["schemas"]["MentionEntity"][];
@@ -661,6 +679,11 @@ export interface components {
         total_tweet_count?: components["schemas"]["Aggregate"];
       };
     };
+    Get2TweetsFirehoseStreamResponse: {
+      data?: components["schemas"]["Tweet"];
+      errors?: components["schemas"]["Problem"][];
+      includes?: components["schemas"]["Expansions"];
+    };
     Get2TweetsIdLikingUsersResponse: {
       data?: components["schemas"]["User"][];
       errors?: components["schemas"]["Problem"][];
@@ -697,6 +720,11 @@ export interface components {
     };
     Get2TweetsResponse: {
       data?: components["schemas"]["Tweet"][];
+      errors?: components["schemas"]["Problem"][];
+      includes?: components["schemas"]["Expansions"];
+    };
+    Get2TweetsSample10StreamResponse: {
+      data?: components["schemas"]["Tweet"];
       errors?: components["schemas"]["Problem"][];
       includes?: components["schemas"]["Expansions"];
     };
@@ -891,9 +919,8 @@ export interface components {
       errors?: components["schemas"]["Problem"][];
       includes?: components["schemas"]["Expansions"];
     };
-    HashtagEntity:
-      & components["schemas"]["EntityIndicesInclusiveExclusive"]
-      & components["schemas"]["HashtagFields"];
+    HashtagEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] &
+      components["schemas"]["HashtagFields"];
     /** @description Represent the portion of text recognized as a Hashtag, and its start and end position within the text. */
     HashtagFields: {
       /**
@@ -1018,9 +1045,8 @@ export interface components {
     MediaKey: string;
     /** @description The width of the media in pixels. */
     MediaWidth: number;
-    MentionEntity:
-      & components["schemas"]["EntityIndicesInclusiveExclusive"]
-      & components["schemas"]["MentionFields"];
+    MentionEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] &
+      components["schemas"]["MentionFields"];
     /** @description Represent the portion of text recognized as a User mention, and its start and end position within the text. */
     MentionFields: {
       id?: components["schemas"]["UserId"];
@@ -1157,28 +1183,11 @@ export interface components {
       title: string;
       type: string;
     };
-    ProblemErrors: {
-      errors: components["schemas"]["Problems"];
-    };
-    /** @description Represents the response in case of throwing an exception. Mainly for the openapi-generator */
-    ProblemOrError:
-      | components["schemas"]["Error"]
-      | components["schemas"]["Problem"];
-    Problems: components["schemas"]["Problem"][];
     /**
      * @description Shows who can reply a Tweet. Fields returned are everyone, mentioned_users, and following.
      * @enum {string}
      */
     ReplySettings: "everyone" | "mentionedUsers" | "following" | "other";
-    ReportUsersRequest: {
-      description: string;
-      user_ids: components["schemas"]["UserId"][];
-    };
-    ReportUsersResponse: {
-      data?: {
-        id?: number;
-      };
-    };
     /** @description A problem that indicates that a given Tweet, User, etc. does not exist. */
     ResourceNotFoundProblem: components["schemas"]["Problem"] & {
       parameter: string;
@@ -1239,48 +1248,48 @@ export interface components {
     /** @description You have exceeded the maximum number of rules. */
     RulesCapProblem: components["schemas"]["Problem"];
     RulesLookupResponse: {
-      data: components["schemas"]["Rule"][];
+      data?: components["schemas"]["Rule"][];
       meta: components["schemas"]["RulesResponseMetadata"];
     };
     RulesRequestSummary:
       | {
-        /**
-         * Format: int32
-         * @description Number of user-specified stream filtering rules that were created.
-         * @example 1
-         */
-        created: number;
-        /**
-         * Format: int32
-         * @description Number of invalid user-specified stream filtering rules.
-         * @example 1
-         */
-        invalid: number;
-        /**
-         * Format: int32
-         * @description Number of user-specified stream filtering rules that were not created.
-         * @example 1
-         */
-        not_created: number;
-        /**
-         * Format: int32
-         * @description Number of valid user-specified stream filtering rules.
-         * @example 1
-         */
-        valid: number;
-      }
+          /**
+           * Format: int32
+           * @description Number of user-specified stream filtering rules that were created.
+           * @example 1
+           */
+          created: number;
+          /**
+           * Format: int32
+           * @description Number of invalid user-specified stream filtering rules.
+           * @example 1
+           */
+          invalid: number;
+          /**
+           * Format: int32
+           * @description Number of user-specified stream filtering rules that were not created.
+           * @example 1
+           */
+          not_created: number;
+          /**
+           * Format: int32
+           * @description Number of valid user-specified stream filtering rules.
+           * @example 1
+           */
+          valid: number;
+        }
       | {
-        /**
-         * Format: int32
-         * @description Number of user-specified stream filtering rules that were deleted.
-         */
-        deleted: number;
-        /**
-         * Format: int32
-         * @description Number of user-specified stream filtering rules that were not deleted.
-         */
-        not_deleted: number;
-      };
+          /**
+           * Format: int32
+           * @description Number of user-specified stream filtering rules that were deleted.
+           */
+          deleted: number;
+          /**
+           * Format: int32
+           * @description Number of user-specified stream filtering rules that were not deleted.
+           */
+          not_deleted: number;
+        };
     RulesResponseMetadata: {
       next_token?: components["schemas"]["NextToken"];
       /**
@@ -1435,6 +1444,23 @@ export interface components {
        * @example 2021-01-06T18:40:40.000Z
        */
       created_at?: string;
+      edit_controls?: {
+        /**
+         * Format: date-time
+         * @description Time when Tweet is no longer editable.
+         * @example 2021-01-06T18:40:40.000Z
+         */
+        editable_until: string;
+        /** @description Number of times this Tweet can be edited. */
+        edits_remaining: number;
+        /**
+         * @description Indicates if this Tweet is eligible to be edited.
+         * @example false
+         */
+        is_edit_eligible: boolean;
+      };
+      /** @description A list of Tweet Ids in this Tweet chain. */
+      edit_history_tweet_ids: components["schemas"]["TweetId"][];
       entities?: components["schemas"]["FullTextEntities"];
       /** @description The location tagged on the Tweet, if the user provided one. */
       geo?: {
@@ -1518,9 +1544,39 @@ export interface components {
       text: components["schemas"]["TweetText"];
       withheld?: components["schemas"]["TweetWithheld"];
     };
+    /** @description Tweet compliance data. */
+    TweetComplianceData:
+      | components["schemas"]["TweetDeleteComplianceSchema"]
+      | components["schemas"]["TweetWithheldComplianceSchema"]
+      | components["schemas"]["TweetDropComplianceSchema"]
+      | components["schemas"]["TweetUndropComplianceSchema"]
+      | components["schemas"]["TweetEditComplianceSchema"];
+    TweetComplianceSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      quote_tweet_id?: components["schemas"]["TweetId"];
+      tweet: {
+        author_id: components["schemas"]["UserId"];
+        id: components["schemas"]["TweetId"];
+      };
+    };
+    /** @description Tweet compliance stream events. */
+    TweetComplianceStreamResponse:
+      | {
+          data: components["schemas"]["TweetComplianceData"];
+        }
+      | {
+          errors: components["schemas"]["Problem"][];
+        };
     /** @description The count for the bucket. */
     TweetCount: number;
     TweetCreateRequest: {
+      /** @description Card Uri Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link. */
+      card_uri?: string;
       /** @description Link to take the conversation from the public timeline to a private Direct Message. */
       direct_message_deep_link?: string;
       /**
@@ -1532,14 +1588,19 @@ export interface components {
       geo?: {
         place_id?: string;
       };
-      /** @description Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id and Poll. */
+      /** @description Media information being attached to created Tweet. This is mutually exclusive from Quote Tweet Id, Poll, and Card URI. */
       media?: {
         /** @description A list of Media Ids to be attached to a created Tweet. */
         media_ids: components["schemas"]["MediaId"][];
         /** @description A list of User Ids to be tagged in the media for created Tweet. */
         tagged_user_ids?: components["schemas"]["UserId"][];
       };
-      /** @description Poll options for a Tweet with a poll. This is mutually exclusive from Media and Quote Tweet Id. */
+      /**
+       * @description Nullcasted (promoted-only) Tweets do not appear in the public timeline and are not served to followers.
+       * @default false
+       */
+      nullcast?: boolean;
+      /** @description Poll options for a Tweet with a poll. This is mutually exclusive from Media, Quote Tweet Id, and Card URI. */
       poll?: {
         /**
          * Format: int32
@@ -1574,11 +1635,33 @@ export interface components {
       };
       errors?: components["schemas"]["Problem"][];
     };
+    TweetDeleteComplianceSchema: {
+      delete: components["schemas"]["TweetComplianceSchema"];
+    };
     TweetDeleteResponse: {
       data?: {
         deleted: boolean;
       };
       errors?: components["schemas"]["Problem"][];
+    };
+    TweetDropComplianceSchema: {
+      drop: components["schemas"]["TweetComplianceSchema"];
+    };
+    TweetEditComplianceObjectSchema: {
+      edit_tweet_ids: components["schemas"]["TweetId"][];
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      initial_tweet_id: components["schemas"]["TweetId"];
+      tweet: {
+        id: components["schemas"]["TweetId"];
+      };
+    };
+    TweetEditComplianceSchema: {
+      tweet_edit: components["schemas"]["TweetEditComplianceObjectSchema"];
     };
     TweetHideRequest: {
       hidden: boolean;
@@ -1593,11 +1676,91 @@ export interface components {
      * @example 1346889436626259968
      */
     TweetId: string;
+    /** @description Tweet label data. */
+    TweetLabelData:
+      | components["schemas"]["TweetNoticeSchema"]
+      | components["schemas"]["TweetUnviewableSchema"];
+    /** @description Tweet label stream events. */
+    TweetLabelStreamResponse:
+      | {
+          data: components["schemas"]["TweetLabelData"];
+        }
+      | {
+          errors: components["schemas"]["Problem"][];
+        };
+    TweetNotice: {
+      /**
+       * @description If the label is being applied or removed. Possible values are ‘apply’ or ‘remove’.
+       * @example apply
+       */
+      application: string;
+      /** @description Information shown on the Tweet label */
+      details?: string;
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      /**
+       * @description The type of label on the Tweet
+       * @example misleading
+       */
+      event_type: string;
+      /** @description Link to more information about this kind of label */
+      extended_details_url?: string;
+      /** @description Title/header of the Tweet label */
+      label_title?: string;
+      tweet: {
+        author_id: components["schemas"]["UserId"];
+        id: components["schemas"]["TweetId"];
+      };
+    };
+    TweetNoticeSchema: {
+      public_tweet_notice: components["schemas"]["TweetNotice"];
+    };
+    TweetTakedownComplianceSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      quote_tweet_id?: components["schemas"]["TweetId"];
+      tweet: {
+        author_id: components["schemas"]["UserId"];
+        id: components["schemas"]["TweetId"];
+      };
+      withheld_in_countries: components["schemas"]["CountryCode"][];
+    };
     /**
      * @description The content of the Tweet.
      * @example Learn how to use the user Tweet timeline and user mention timeline endpoints in the Twitter API v2 to explore Tweet\u2026 https:\/\/t.co\/56a0vZUx7i
      */
     TweetText: string;
+    TweetUndropComplianceSchema: {
+      undrop: components["schemas"]["TweetComplianceSchema"];
+    };
+    TweetUnviewable: {
+      /**
+       * @description If the label is being applied or removed. Possible values are ‘apply’ or ‘remove’.
+       * @example apply
+       */
+      application: string;
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      tweet: {
+        author_id: components["schemas"]["UserId"];
+        id: components["schemas"]["TweetId"];
+      };
+    };
+    TweetUnviewableSchema: {
+      public_tweet_unviewable: components["schemas"]["TweetUnviewable"];
+    };
     /** @description Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country). */
     TweetWithheld: {
       /** @description Indicates if the content is being withheld for on the basis of copyright infringement. */
@@ -1609,6 +1772,9 @@ export interface components {
        * @enum {string}
        */
       scope?: "tweet" | "user";
+    };
+    TweetWithheldComplianceSchema: {
+      withheld: components["schemas"]["TweetTakedownComplianceSchema"];
     };
     /** @description A problem that indicates that the authentication used is not supported. */
     UnsupportedAuthenticationProblem: components["schemas"]["Problem"];
@@ -1630,9 +1796,8 @@ export interface components {
      */
     Url: string;
     /** @description Represent the portion of text recognized as a URL, and its start and end position within the text. */
-    UrlEntity:
-      & components["schemas"]["EntityIndicesInclusiveExclusive"]
-      & components["schemas"]["UrlFields"];
+    UrlEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] &
+      components["schemas"]["UrlFields"];
     /** @description Represent the portion of text recognized as a URL. */
     UrlFields: {
       /**
@@ -1732,6 +1897,39 @@ export interface components {
       verified?: boolean;
       withheld?: components["schemas"]["UserWithheld"];
     };
+    /** @description User compliance data. */
+    UserComplianceData:
+      | components["schemas"]["UserProtectComplianceSchema"]
+      | components["schemas"]["UserUnprotectComplianceSchema"]
+      | components["schemas"]["UserDeleteComplianceSchema"]
+      | components["schemas"]["UserUndeleteComplianceSchema"]
+      | components["schemas"]["UserSuspendComplianceSchema"]
+      | components["schemas"]["UserUnsuspendComplianceSchema"]
+      | components["schemas"]["UserWithheldComplianceSchema"]
+      | components["schemas"]["UserScrubGeoSchema"]
+      | components["schemas"]["UserProfileModificationComplianceSchema"];
+    UserComplianceSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      user: {
+        id: components["schemas"]["UserId"];
+      };
+    };
+    /** @description User compliance stream events. */
+    UserComplianceStreamResponse:
+      | {
+          data: components["schemas"]["UserComplianceData"];
+        }
+      | {
+          errors: components["schemas"]["Problem"][];
+        };
+    UserDeleteComplianceSchema: {
+      user_delete: components["schemas"]["UserComplianceSchema"];
+    };
     /**
      * @description Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.
      * @example 2244994945
@@ -1744,6 +1942,64 @@ export interface components {
     UserIdMatchesAuthenticatedUser: string;
     /** @description The Twitter handle (screen name) of this user. */
     UserName: string;
+    UserProfileModificationComplianceSchema: {
+      user_profile_modification: components["schemas"]["UserProfileModificationObjectSchema"];
+    };
+    UserProfileModificationObjectSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      new_value: string;
+      profile_field: string;
+      user: {
+        id: components["schemas"]["UserId"];
+      };
+    };
+    UserProtectComplianceSchema: {
+      user_protect: components["schemas"]["UserComplianceSchema"];
+    };
+    UserScrubGeoObjectSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      up_to_tweet_id: components["schemas"]["TweetId"];
+      user: {
+        id: components["schemas"]["UserId"];
+      };
+    };
+    UserScrubGeoSchema: {
+      scrub_geo: components["schemas"]["UserScrubGeoObjectSchema"];
+    };
+    UserSuspendComplianceSchema: {
+      user_suspend: components["schemas"]["UserComplianceSchema"];
+    };
+    UserTakedownComplianceSchema: {
+      /**
+       * Format: date-time
+       * @description Event time.
+       * @example 2021-07-06T18:40:40.000Z
+       */
+      event_at: string;
+      user: {
+        id: components["schemas"]["UserId"];
+      };
+      withheld_in_countries: components["schemas"]["CountryCode"][];
+    };
+    UserUndeleteComplianceSchema: {
+      user_undelete: components["schemas"]["UserComplianceSchema"];
+    };
+    UserUnprotectComplianceSchema: {
+      user_unprotect: components["schemas"]["UserComplianceSchema"];
+    };
+    UserUnsuspendComplianceSchema: {
+      user_unsuspend: components["schemas"]["UserComplianceSchema"];
+    };
     /** @description Indicates withholding details for [withheld content](https://help.twitter.com/en/rules-and-policies/tweet-withheld-by-country). */
     UserWithheld: {
       /** @description Provides a list of countries where this content is not available. */
@@ -1753,6 +2009,9 @@ export interface components {
        * @enum {string}
        */
       scope?: "user";
+    };
+    UserWithheldComplianceSchema: {
+      user_withheld: components["schemas"]["UserTakedownComplianceSchema"];
     };
     UsersFollowingCreateRequest: {
       target_user_id: components["schemas"]["UserId"];
@@ -2021,6 +2280,7 @@ export interface components {
       | "attachments.media_keys"
       | "attachments.poll_ids"
       | "author_id"
+      | "edit_history_tweet_ids"
       | "entities.mentions.username"
       | "geo.place_id"
       | "in_reply_to_user_id"
@@ -2034,6 +2294,8 @@ export interface components {
       | "context_annotations"
       | "conversation_id"
       | "created_at"
+      | "edit_controls"
+      | "edit_history_tweet_ids"
       | "entities"
       | "geo"
       | "id"
@@ -2082,16 +2344,14 @@ export interface operations {
         /** Status of Compliance Job to list. */
         status?: "created" | "in_progress" | "failed" | "complete";
         /** A comma separated list of ComplianceJob fields to display. */
-        "compliance_job.fields"?:
-          components["parameters"]["ComplianceJobFieldsParameter"];
+        "compliance_job.fields"?: components["parameters"]["ComplianceJobFieldsParameter"];
       };
     };
     responses: {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2ComplianceJobsResponse"];
+          "application/json": components["schemas"]["Get2ComplianceJobsResponse"];
         };
       };
       /** The request has failed. */
@@ -2110,8 +2370,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["CreateComplianceJobResponse"];
+          "application/json": components["schemas"]["CreateComplianceJobResponse"];
         };
       };
       /** The request has failed. */
@@ -2137,16 +2396,14 @@ export interface operations {
       };
       query: {
         /** A comma separated list of ComplianceJob fields to display. */
-        "compliance_job.fields"?:
-          components["parameters"]["ComplianceJobFieldsParameter"];
+        "compliance_job.fields"?: components["parameters"]["ComplianceJobFieldsParameter"];
       };
     };
     responses: {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2ComplianceJobsIdResponse"];
+          "application/json": components["schemas"]["Get2ComplianceJobsIdResponse"];
         };
       };
       /** The request has failed. */
@@ -2291,8 +2548,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2ListsIdFollowersResponse"];
+          "application/json": components["schemas"]["Get2ListsIdFollowersResponse"];
         };
       };
       /** The request has failed. */
@@ -2328,8 +2584,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2ListsIdMembersResponse"];
+          "application/json": components["schemas"]["Get2ListsIdMembersResponse"];
         };
       };
       /** The request has failed. */
@@ -2426,8 +2681,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2ListsIdTweetsResponse"];
+          "application/json": components["schemas"]["Get2ListsIdTweetsResponse"];
         };
       };
       /** The request has failed. */
@@ -2503,8 +2757,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2SpacesByCreatorIdsResponse"];
+          "application/json": components["schemas"]["Get2SpacesByCreatorIdsResponse"];
         };
       };
       /** The request has failed. */
@@ -2610,8 +2863,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2SpacesIdBuyersResponse"];
+          "application/json": components["schemas"]["Get2SpacesIdBuyersResponse"];
         };
       };
       /** The request has failed. */
@@ -2651,8 +2903,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2SpacesIdTweetsResponse"];
+          "application/json": components["schemas"]["Get2SpacesIdTweetsResponse"];
         };
       };
       /** The request has failed. */
@@ -2724,6 +2975,36 @@ export interface operations {
       };
     };
   };
+  /** Streams 100% of compliance data for Tweets */
+  getTweetsComplianceStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Tweet Compliance events will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Tweet Compliance events will be provided. */
+        end_time?: string;
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["TweetComplianceStreamResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
   /** Returns Tweet Counts that match a search query. */
   tweetCountsFullArchiveSearch: {
     parameters: {
@@ -2745,16 +3026,14 @@ export interface operations {
         /** The granularity for the search counts results. */
         granularity?: "minute" | "hour" | "day";
         /** A comma separated list of SearchCount fields to display. */
-        "search_count.fields"?:
-          components["parameters"]["SearchCountFieldsParameter"];
+        "search_count.fields"?: components["parameters"]["SearchCountFieldsParameter"];
       };
     };
     responses: {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsCountsAllResponse"];
+          "application/json": components["schemas"]["Get2TweetsCountsAllResponse"];
         };
       };
       /** The request has failed. */
@@ -2787,16 +3066,84 @@ export interface operations {
         /** The granularity for the search counts results. */
         granularity?: "minute" | "hour" | "day";
         /** A comma separated list of SearchCount fields to display. */
-        "search_count.fields"?:
-          components["parameters"]["SearchCountFieldsParameter"];
+        "search_count.fields"?: components["parameters"]["SearchCountFieldsParameter"];
       };
     };
     responses: {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsCountsRecentResponse"];
+          "application/json": components["schemas"]["Get2TweetsCountsRecentResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
+  /** Streams 100% of public Tweets. */
+  getTweetsFirehoseStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Tweets will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Tweets will be provided. */
+        end_time?: string;
+        /** A comma separated list of Tweet fields to display. */
+        "tweet.fields"?: components["parameters"]["TweetFieldsParameter"];
+        /** A comma separated list of fields to expand. */
+        expansions?: components["parameters"]["TweetExpansionsParameter"];
+        /** A comma separated list of Media fields to display. */
+        "media.fields"?: components["parameters"]["MediaFieldsParameter"];
+        /** A comma separated list of Poll fields to display. */
+        "poll.fields"?: components["parameters"]["PollFieldsParameter"];
+        /** A comma separated list of User fields to display. */
+        "user.fields"?: components["parameters"]["UserFieldsParameter"];
+        /** A comma separated list of Place fields to display. */
+        "place.fields"?: components["parameters"]["PlaceFieldsParameter"];
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["StreamingTweetResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
+  /** Streams 100% of labeling events applied to Tweets */
+  getTweetsLabelStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Tweet labels will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the Tweet labels will be provided. */
+        end_time?: string;
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["TweetLabelStreamResponse"];
         };
       };
       /** The request has failed. */
@@ -2833,6 +3180,48 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["StreamingTweetResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
+  /** Streams a deterministic 10% of public Tweets. */
+  getTweetsSample10Stream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp to which the Tweets will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Tweets will be provided. */
+        end_time?: string;
+        /** A comma separated list of Tweet fields to display. */
+        "tweet.fields"?: components["parameters"]["TweetFieldsParameter"];
+        /** A comma separated list of fields to expand. */
+        expansions?: components["parameters"]["TweetExpansionsParameter"];
+        /** A comma separated list of Media fields to display. */
+        "media.fields"?: components["parameters"]["MediaFieldsParameter"];
+        /** A comma separated list of Poll fields to display. */
+        "poll.fields"?: components["parameters"]["PollFieldsParameter"];
+        /** A comma separated list of User fields to display. */
+        "user.fields"?: components["parameters"]["UserFieldsParameter"];
+        /** A comma separated list of Place fields to display. */
+        "place.fields"?: components["parameters"]["PlaceFieldsParameter"];
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Get2TweetsSample10StreamResponse"];
         };
       };
       /** The request has failed. */
@@ -2884,8 +3273,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsSearchAllResponse"];
+          "application/json": components["schemas"]["Get2TweetsSearchAllResponse"];
         };
       };
       /** The request has failed. */
@@ -2937,8 +3325,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsSearchRecentResponse"];
+          "application/json": components["schemas"]["Get2TweetsSearchRecentResponse"];
         };
       };
       /** The request has failed. */
@@ -2956,6 +3343,10 @@ export interface operations {
       query: {
         /** The number of minutes of backfill requested. */
         backfill_minutes?: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Tweets will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Tweets will be provided. */
+        end_time?: string;
         /** A comma separated list of Tweet fields to display. */
         "tweet.fields"?: components["parameters"]["TweetFieldsParameter"];
         /** A comma separated list of fields to expand. */
@@ -2974,8 +3365,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["FilteredStreamingTweetResponse"];
+          "application/json": components["schemas"]["FilteredStreamingTweetResponse"];
         };
       };
       /** The request has failed. */
@@ -3130,8 +3520,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsIdLikingUsersResponse"];
+          "application/json": components["schemas"]["Get2TweetsIdLikingUsersResponse"];
         };
       };
       /** The request has failed. */
@@ -3175,8 +3564,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsIdQuoteTweetsResponse"];
+          "application/json": components["schemas"]["Get2TweetsIdQuoteTweetsResponse"];
         };
       };
       /** The request has failed. */
@@ -3212,8 +3600,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2TweetsIdRetweetedByResponse"];
+          "application/json": components["schemas"]["Get2TweetsIdRetweetedByResponse"];
         };
       };
       /** The request has failed. */
@@ -3334,8 +3721,37 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersByUsernameUsernameResponse"];
+          "application/json": components["schemas"]["Get2UsersByUsernameUsernameResponse"];
+        };
+      };
+      /** The request has failed. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+          "application/problem+json": components["schemas"]["Problem"];
+        };
+      };
+    };
+  };
+  /** Streams 100% of compliance data for Users */
+  getUsersComplianceStream: {
+    parameters: {
+      query: {
+        /** The number of minutes of backfill requested. */
+        backfill_minutes?: number;
+        /** The partition number. */
+        partition: number;
+        /** YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the User Compliance events will be provided. */
+        start_time?: string;
+        /** YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp from which the User Compliance events will be provided. */
+        end_time?: string;
+      };
+    };
+    responses: {
+      /** The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserComplianceStreamResponse"];
         };
       };
       /** The request has failed. */
@@ -3431,8 +3847,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdBlockingResponse"];
+          "application/json": components["schemas"]["Get2UsersIdBlockingResponse"];
         };
       };
       /** The request has failed. */
@@ -3456,8 +3871,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["BlockUserMutationResponse"];
+          "application/json": components["schemas"]["BlockUserMutationResponse"];
         };
       };
       /** The request has failed. */
@@ -3504,8 +3918,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdBookmarksResponse"];
+          "application/json": components["schemas"]["Get2UsersIdBookmarksResponse"];
         };
       };
       /** The request has failed. */
@@ -3596,8 +4009,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdFollowedListsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdFollowedListsResponse"];
         };
       };
       /** The request has failed. */
@@ -3664,7 +4076,7 @@ export interface operations {
       };
     };
   };
-  /** Returns a list of Users that follow the provided User ID */
+  /** Returns a list of Users who are followers of the specified User ID. */
   usersIdFollowers: {
     parameters: {
       path: {
@@ -3688,8 +4100,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdFollowersResponse"];
+          "application/json": components["schemas"]["Get2UsersIdFollowersResponse"];
         };
       };
       /** The request has failed. */
@@ -3725,8 +4136,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdFollowingResponse"];
+          "application/json": components["schemas"]["Get2UsersIdFollowingResponse"];
         };
       };
       /** The request has failed. */
@@ -3750,8 +4160,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["UsersFollowingCreateResponse"];
+          "application/json": components["schemas"]["UsersFollowingCreateResponse"];
         };
       };
       /** The request has failed. */
@@ -3764,8 +4173,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json":
-          components["schemas"]["UsersFollowingCreateRequest"];
+        "application/json": components["schemas"]["UsersFollowingCreateRequest"];
       };
     };
   };
@@ -3799,8 +4207,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdLikedTweetsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdLikedTweetsResponse"];
         };
       };
       /** The request has failed. */
@@ -3891,8 +4298,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdListMembershipsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdListMembershipsResponse"];
         };
       };
       /** The request has failed. */
@@ -3942,8 +4348,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdMentionsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdMentionsResponse"];
         };
       };
       /** The request has failed. */
@@ -3979,8 +4384,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdMutingResponse"];
+          "application/json": components["schemas"]["Get2UsersIdMutingResponse"];
         };
       };
       /** The request has failed. */
@@ -4045,8 +4449,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdOwnedListsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdOwnedListsResponse"];
         };
       };
       /** The request has failed. */
@@ -4078,8 +4481,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdPinnedListsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdPinnedListsResponse"];
         };
       };
       /** The request has failed. */
@@ -4158,8 +4560,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["UsersRetweetsCreateResponse"];
+          "application/json": components["schemas"]["UsersRetweetsCreateResponse"];
         };
       };
       /** The request has failed. */
@@ -4190,8 +4591,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["UsersRetweetsDeleteResponse"];
+          "application/json": components["schemas"]["UsersRetweetsDeleteResponse"];
         };
       };
       /** The request has failed. */
@@ -4243,9 +4643,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json": components["schemas"][
-            "Get2UsersIdTimelinesReverseChronologicalResponse"
-          ];
+          "application/json": components["schemas"]["Get2UsersIdTimelinesReverseChronologicalResponse"];
         };
       };
       /** The request has failed. */
@@ -4297,8 +4695,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["Get2UsersIdTweetsResponse"];
+          "application/json": components["schemas"]["Get2UsersIdTweetsResponse"];
         };
       };
       /** The request has failed. */
@@ -4324,8 +4721,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["BlockUserMutationResponse"];
+          "application/json": components["schemas"]["BlockUserMutationResponse"];
         };
       };
       /** The request has failed. */
@@ -4351,8 +4747,7 @@ export interface operations {
       /** The request has succeeded. */
       200: {
         content: {
-          "application/json":
-            components["schemas"]["UsersFollowingDeleteResponse"];
+          "application/json": components["schemas"]["UsersFollowingDeleteResponse"];
         };
       };
       /** The request has failed. */
@@ -4393,73 +4788,77 @@ export interface operations {
 }
 
 export interface external {}
-export type listBatchComplianceJobs = operations["listBatchComplianceJobs"];
-export type createBatchComplianceJob = operations["createBatchComplianceJob"];
-export type getBatchComplianceJob = operations["getBatchComplianceJob"];
-export type listIdCreate = operations["listIdCreate"];
-export type listIdDelete = operations["listIdDelete"];
-export type listIdGet = operations["listIdGet"];
-export type listIdUpdate = operations["listIdUpdate"];
-export type listGetFollowers = operations["listGetFollowers"];
-export type listGetMembers = operations["listGetMembers"];
-export type listAddMember = operations["listAddMember"];
-export type listRemoveMember = operations["listRemoveMember"];
-export type listsIdTweets = operations["listsIdTweets"];
-export type getOpenApiSpec = operations["getOpenApiSpec"];
-export type findSpacesByIds = operations["findSpacesByIds"];
-export type findSpacesByCreatorIds = operations["findSpacesByCreatorIds"];
-export type searchSpaces = operations["searchSpaces"];
-export type findSpaceById = operations["findSpaceById"];
-export type spaceBuyers = operations["spaceBuyers"];
-export type spaceTweets = operations["spaceTweets"];
-export type findTweetsById = operations["findTweetsById"];
-export type createTweet = operations["createTweet"];
-export type tweetCountsFullArchiveSearch =
-  operations["tweetCountsFullArchiveSearch"];
-export type tweetCountsRecentSearch = operations["tweetCountsRecentSearch"];
-export type sampleStream = operations["sampleStream"];
-export type tweetsFullarchiveSearch = operations["tweetsFullarchiveSearch"];
-export type tweetsRecentSearch = operations["tweetsRecentSearch"];
-export type searchStream = operations["searchStream"];
-export type getRules = operations["getRules"];
-export type addOrDeleteRules = operations["addOrDeleteRules"];
-export type deleteTweetById = operations["deleteTweetById"];
-export type findTweetById = operations["findTweetById"];
-export type tweetsIdLikingUsers = operations["tweetsIdLikingUsers"];
-export type findTweetsThatQuoteATweet = operations["findTweetsThatQuoteATweet"];
-export type tweetsIdRetweetingUsers = operations["tweetsIdRetweetingUsers"];
-export type hideReplyById = operations["hideReplyById"];
-export type findUsersById = operations["findUsersById"];
-export type findUsersByUsername = operations["findUsersByUsername"];
-export type findUserByUsername = operations["findUserByUsername"];
-export type findMyUser = operations["findMyUser"];
-export type findUserById = operations["findUserById"];
-export type usersIdBlocking = operations["usersIdBlocking"];
-export type usersIdBlock = operations["usersIdBlock"];
-export type getUsersIdBookmarks = operations["getUsersIdBookmarks"];
-export type postUsersIdBookmarks = operations["postUsersIdBookmarks"];
-export type usersIdBookmarksDelete = operations["usersIdBookmarksDelete"];
-export type userFollowedLists = operations["userFollowedLists"];
-export type listUserFollow = operations["listUserFollow"];
-export type listUserUnfollow = operations["listUserUnfollow"];
-export type usersIdFollowers = operations["usersIdFollowers"];
-export type usersIdFollowing = operations["usersIdFollowing"];
-export type usersIdFollow = operations["usersIdFollow"];
-export type usersIdLikedTweets = operations["usersIdLikedTweets"];
-export type usersIdLike = operations["usersIdLike"];
-export type usersIdUnlike = operations["usersIdUnlike"];
-export type getUserListMemberships = operations["getUserListMemberships"];
-export type usersIdMentions = operations["usersIdMentions"];
-export type usersIdMuting = operations["usersIdMuting"];
-export type usersIdMute = operations["usersIdMute"];
-export type listUserOwnedLists = operations["listUserOwnedLists"];
-export type listUserPinnedLists = operations["listUserPinnedLists"];
-export type listUserPin = operations["listUserPin"];
-export type listUserUnpin = operations["listUserUnpin"];
-export type usersIdRetweets = operations["usersIdRetweets"];
-export type usersIdUnretweets = operations["usersIdUnretweets"];
-export type usersIdTimeline = operations["usersIdTimeline"];
-export type usersIdTweets = operations["usersIdTweets"];
-export type usersIdUnblock = operations["usersIdUnblock"];
-export type usersIdUnfollow = operations["usersIdUnfollow"];
-export type usersIdUnmute = operations["usersIdUnmute"];
+export type listBatchComplianceJobs = operations['listBatchComplianceJobs']
+export type createBatchComplianceJob = operations['createBatchComplianceJob']
+export type getBatchComplianceJob = operations['getBatchComplianceJob']
+export type listIdCreate = operations['listIdCreate']
+export type listIdDelete = operations['listIdDelete']
+export type listIdGet = operations['listIdGet']
+export type listIdUpdate = operations['listIdUpdate']
+export type listGetFollowers = operations['listGetFollowers']
+export type listGetMembers = operations['listGetMembers']
+export type listAddMember = operations['listAddMember']
+export type listRemoveMember = operations['listRemoveMember']
+export type listsIdTweets = operations['listsIdTweets']
+export type getOpenApiSpec = operations['getOpenApiSpec']
+export type findSpacesByIds = operations['findSpacesByIds']
+export type findSpacesByCreatorIds = operations['findSpacesByCreatorIds']
+export type searchSpaces = operations['searchSpaces']
+export type findSpaceById = operations['findSpaceById']
+export type spaceBuyers = operations['spaceBuyers']
+export type spaceTweets = operations['spaceTweets']
+export type findTweetsById = operations['findTweetsById']
+export type createTweet = operations['createTweet']
+export type getTweetsComplianceStream = operations['getTweetsComplianceStream']
+export type tweetCountsFullArchiveSearch = operations['tweetCountsFullArchiveSearch']
+export type tweetCountsRecentSearch = operations['tweetCountsRecentSearch']
+export type getTweetsFirehoseStream = operations['getTweetsFirehoseStream']
+export type getTweetsLabelStream = operations['getTweetsLabelStream']
+export type sampleStream = operations['sampleStream']
+export type getTweetsSample10Stream = operations['getTweetsSample10Stream']
+export type tweetsFullarchiveSearch = operations['tweetsFullarchiveSearch']
+export type tweetsRecentSearch = operations['tweetsRecentSearch']
+export type searchStream = operations['searchStream']
+export type getRules = operations['getRules']
+export type addOrDeleteRules = operations['addOrDeleteRules']
+export type deleteTweetById = operations['deleteTweetById']
+export type findTweetById = operations['findTweetById']
+export type tweetsIdLikingUsers = operations['tweetsIdLikingUsers']
+export type findTweetsThatQuoteATweet = operations['findTweetsThatQuoteATweet']
+export type tweetsIdRetweetingUsers = operations['tweetsIdRetweetingUsers']
+export type hideReplyById = operations['hideReplyById']
+export type findUsersById = operations['findUsersById']
+export type findUsersByUsername = operations['findUsersByUsername']
+export type findUserByUsername = operations['findUserByUsername']
+export type getUsersComplianceStream = operations['getUsersComplianceStream']
+export type findMyUser = operations['findMyUser']
+export type findUserById = operations['findUserById']
+export type usersIdBlocking = operations['usersIdBlocking']
+export type usersIdBlock = operations['usersIdBlock']
+export type getUsersIdBookmarks = operations['getUsersIdBookmarks']
+export type postUsersIdBookmarks = operations['postUsersIdBookmarks']
+export type usersIdBookmarksDelete = operations['usersIdBookmarksDelete']
+export type userFollowedLists = operations['userFollowedLists']
+export type listUserFollow = operations['listUserFollow']
+export type listUserUnfollow = operations['listUserUnfollow']
+export type usersIdFollowers = operations['usersIdFollowers']
+export type usersIdFollowing = operations['usersIdFollowing']
+export type usersIdFollow = operations['usersIdFollow']
+export type usersIdLikedTweets = operations['usersIdLikedTweets']
+export type usersIdLike = operations['usersIdLike']
+export type usersIdUnlike = operations['usersIdUnlike']
+export type getUserListMemberships = operations['getUserListMemberships']
+export type usersIdMentions = operations['usersIdMentions']
+export type usersIdMuting = operations['usersIdMuting']
+export type usersIdMute = operations['usersIdMute']
+export type listUserOwnedLists = operations['listUserOwnedLists']
+export type listUserPinnedLists = operations['listUserPinnedLists']
+export type listUserPin = operations['listUserPin']
+export type listUserUnpin = operations['listUserUnpin']
+export type usersIdRetweets = operations['usersIdRetweets']
+export type usersIdUnretweets = operations['usersIdUnretweets']
+export type usersIdTimeline = operations['usersIdTimeline']
+export type usersIdTweets = operations['usersIdTweets']
+export type usersIdUnblock = operations['usersIdUnblock']
+export type usersIdUnfollow = operations['usersIdUnfollow']
+export type usersIdUnmute = operations['usersIdUnmute']

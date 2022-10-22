@@ -6,91 +6,97 @@ This file is auto-generated
 Do not make direct changes to this file
 */
 
-import { paginate, RequestOptions, rest, stream } from "../request.ts";
+import { rest, stream, paginate, RequestOptions } from "../request.ts";
 import {
   AuthClient,
-  TwitterBody,
-  TwitterPaginatedResponse,
-  TwitterParams,
   TwitterResponse,
+  TwitterBody,
+  TwitterParams,
+  TwitterPaginatedResponse,
 } from "../types.ts";
 import { OAuth2Bearer } from "../auth.ts";
 
 import {
-  addOrDeleteRules,
-  createBatchComplianceJob,
-  createTweet,
-  deleteTweetById,
-  findMyUser,
-  findSpaceById,
-  findSpacesByCreatorIds,
-  findSpacesByIds,
-  findTweetById,
-  findTweetsById,
-  findTweetsThatQuoteATweet,
-  findUserById,
-  findUserByUsername,
-  findUsersById,
-  findUsersByUsername,
-  getBatchComplianceJob,
-  getOpenApiSpec,
-  getRules,
-  getUserListMemberships,
-  getUsersIdBookmarks,
-  hideReplyById,
-  listAddMember,
   listBatchComplianceJobs,
-  listGetFollowers,
-  listGetMembers,
+  createBatchComplianceJob,
+  getBatchComplianceJob,
   listIdCreate,
   listIdDelete,
   listIdGet,
   listIdUpdate,
+  listGetFollowers,
+  listGetMembers,
+  listAddMember,
   listRemoveMember,
   listsIdTweets,
-  listUserFollow,
-  listUserOwnedLists,
-  listUserPin,
-  listUserPinnedLists,
-  listUserUnfollow,
-  listUserUnpin,
-  postUsersIdBookmarks,
-  sampleStream,
+  getOpenApiSpec,
+  findSpacesByIds,
+  findSpacesByCreatorIds,
   searchSpaces,
-  searchStream,
+  findSpaceById,
   spaceBuyers,
   spaceTweets,
+  findTweetsById,
+  createTweet,
+  getTweetsComplianceStream,
   tweetCountsFullArchiveSearch,
   tweetCountsRecentSearch,
+  getTweetsFirehoseStream,
+  getTweetsLabelStream,
+  sampleStream,
+  getTweetsSample10Stream,
   tweetsFullarchiveSearch,
-  tweetsIdLikingUsers,
-  tweetsIdRetweetingUsers,
   tweetsRecentSearch,
-  userFollowedLists,
-  usersIdBlock,
+  searchStream,
+  getRules,
+  addOrDeleteRules,
+  deleteTweetById,
+  findTweetById,
+  tweetsIdLikingUsers,
+  findTweetsThatQuoteATweet,
+  tweetsIdRetweetingUsers,
+  hideReplyById,
+  findUsersById,
+  findUsersByUsername,
+  findUserByUsername,
+  getUsersComplianceStream,
+  findMyUser,
+  findUserById,
   usersIdBlocking,
+  usersIdBlock,
+  getUsersIdBookmarks,
+  postUsersIdBookmarks,
   usersIdBookmarksDelete,
-  usersIdFollow,
+  userFollowedLists,
+  listUserFollow,
+  listUserUnfollow,
   usersIdFollowers,
   usersIdFollowing,
-  usersIdLike,
+  usersIdFollow,
   usersIdLikedTweets,
+  usersIdLike,
+  usersIdUnlike,
+  getUserListMemberships,
   usersIdMentions,
-  usersIdMute,
   usersIdMuting,
+  usersIdMute,
+  listUserOwnedLists,
+  listUserPinnedLists,
+  listUserPin,
+  listUserUnpin,
   usersIdRetweets,
+  usersIdUnretweets,
   usersIdTimeline,
   usersIdTweets,
   usersIdUnblock,
   usersIdUnfollow,
-  usersIdUnlike,
   usersIdUnmute,
-  usersIdUnretweets,
 } from "./openapi-types.ts";
 /**
  * Twitter API TypeScript Client
  *
  * TypeScript SDK for use with the Twitter API
+ *
  */
 export class Client {
   #auth: AuthClient;
@@ -100,10 +106,10 @@ export class Client {
 
   constructor(
     auth: string | AuthClient,
-    requestOptions?: Partial<RequestOptions>,
+    requestOptions?: Partial<RequestOptions>
   ) {
-    this.version = "1.1.0";
-    this.twitterApiOpenApiVersion = "2.45";
+    this.version = "1.2.1";
+    this.twitterApiOpenApiVersion = "2.54";
     this.#auth = typeof auth === "string" ? new OAuth2Bearer(auth) : auth;
     this.#defaultRequestOptions = {
       ...requestOptions,
@@ -135,7 +141,7 @@ export class Client {
     getUsersIdBookmarks: (
       id: string,
       params: TwitterParams<getUsersIdBookmarks> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<getUsersIdBookmarks>> =>
       paginate<TwitterResponse<getUsersIdBookmarks>>({
         auth: this.#auth,
@@ -158,7 +164,7 @@ export class Client {
     postUsersIdBookmarks: (
       id: string,
       request_body: TwitterBody<postUsersIdBookmarks>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<postUsersIdBookmarks>> =>
       rest<TwitterResponse<postUsersIdBookmarks>>({
         auth: this.#auth,
@@ -181,7 +187,7 @@ export class Client {
     usersIdBookmarksDelete: (
       id: string,
       tweet_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdBookmarksDelete>> =>
       rest<TwitterResponse<usersIdBookmarksDelete>>({
         auth: this.#auth,
@@ -210,7 +216,7 @@ export class Client {
     */
     listBatchComplianceJobs: (
       params: TwitterParams<listBatchComplianceJobs>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listBatchComplianceJobs>> =>
       rest<TwitterResponse<listBatchComplianceJobs>>({
         auth: this.#auth,
@@ -231,7 +237,7 @@ export class Client {
     */
     createBatchComplianceJob: (
       request_body: TwitterBody<createBatchComplianceJob>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<createBatchComplianceJob>> =>
       rest<TwitterResponse<createBatchComplianceJob>>({
         auth: this.#auth,
@@ -254,13 +260,76 @@ export class Client {
     getBatchComplianceJob: (
       id: string,
       params: TwitterParams<getBatchComplianceJob> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<getBatchComplianceJob>> =>
       rest<TwitterResponse<getBatchComplianceJob>>({
         auth: this.#auth,
         ...this.#defaultRequestOptions,
         ...request_options,
         endpoint: `/2/compliance/jobs/${id}`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Tweets Compliance stream
+    *
+
+    * Streams 100% of compliance data for Tweets
+    * @param params - The params for getTweetsComplianceStream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsComplianceStream: (
+      params: TwitterParams<getTweetsComplianceStream>,
+      request_options?: Partial<RequestOptions>
+    ): AsyncGenerator<TwitterResponse<getTweetsComplianceStream>> =>
+      stream<TwitterResponse<getTweetsComplianceStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/compliance/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Tweets Label stream
+    *
+
+    * Streams 100% of labeling events applied to Tweets
+    * @param params - The params for getTweetsLabelStream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsLabelStream: (
+      params: TwitterParams<getTweetsLabelStream> = {},
+      request_options?: Partial<RequestOptions>
+    ): AsyncGenerator<TwitterResponse<getTweetsLabelStream>> =>
+      stream<TwitterResponse<getTweetsLabelStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/label/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Users Compliance stream
+    *
+
+    * Streams 100% of compliance data for Users
+    * @param params - The params for getUsersComplianceStream
+    * @param request_options - Customize the options for this request
+    */
+    getUsersComplianceStream: (
+      params: TwitterParams<getUsersComplianceStream>,
+      request_options?: Partial<RequestOptions>
+    ): AsyncGenerator<TwitterResponse<getUsersComplianceStream>> =>
+      stream<TwitterResponse<getUsersComplianceStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/users/compliance/stream`,
         params,
         method: "GET",
       }),
@@ -282,7 +351,7 @@ export class Client {
     * @param request_options - Customize the options for this request
     */
     getOpenApiSpec: (
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<getOpenApiSpec>> =>
       rest<TwitterResponse<getOpenApiSpec>>({
         auth: this.#auth,
@@ -311,7 +380,7 @@ export class Client {
     */
     listIdCreate: (
       request_body: TwitterBody<listIdCreate>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listIdCreate>> =>
       rest<TwitterResponse<listIdCreate>>({
         auth: this.#auth,
@@ -332,7 +401,7 @@ export class Client {
     */
     listIdDelete: (
       id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listIdDelete>> =>
       rest<TwitterResponse<listIdDelete>>({
         auth: this.#auth,
@@ -354,7 +423,7 @@ export class Client {
     listIdGet: (
       id: string,
       params: TwitterParams<listIdGet> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listIdGet>> =>
       rest<TwitterResponse<listIdGet>>({
         auth: this.#auth,
@@ -377,7 +446,7 @@ export class Client {
     listIdUpdate: (
       id: string,
       request_body: TwitterBody<listIdUpdate>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listIdUpdate>> =>
       rest<TwitterResponse<listIdUpdate>>({
         auth: this.#auth,
@@ -400,7 +469,7 @@ export class Client {
     listAddMember: (
       id: string,
       request_body: TwitterBody<listAddMember>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listAddMember>> =>
       rest<TwitterResponse<listAddMember>>({
         auth: this.#auth,
@@ -423,7 +492,7 @@ export class Client {
     listRemoveMember: (
       id: string,
       user_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listRemoveMember>> =>
       rest<TwitterResponse<listRemoveMember>>({
         auth: this.#auth,
@@ -445,7 +514,7 @@ export class Client {
     userFollowedLists: (
       id: string,
       params: TwitterParams<userFollowedLists> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<userFollowedLists>> =>
       paginate<TwitterResponse<userFollowedLists>>({
         auth: this.#auth,
@@ -468,7 +537,7 @@ export class Client {
     listUserFollow: (
       id: string,
       request_body: TwitterBody<listUserFollow>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listUserFollow>> =>
       rest<TwitterResponse<listUserFollow>>({
         auth: this.#auth,
@@ -491,7 +560,7 @@ export class Client {
     listUserUnfollow: (
       id: string,
       list_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listUserUnfollow>> =>
       rest<TwitterResponse<listUserUnfollow>>({
         auth: this.#auth,
@@ -513,7 +582,7 @@ export class Client {
     getUserListMemberships: (
       id: string,
       params: TwitterParams<getUserListMemberships> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<getUserListMemberships>> =>
       paginate<TwitterResponse<getUserListMemberships>>({
         auth: this.#auth,
@@ -536,7 +605,7 @@ export class Client {
     listUserOwnedLists: (
       id: string,
       params: TwitterParams<listUserOwnedLists> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<listUserOwnedLists>> =>
       paginate<TwitterResponse<listUserOwnedLists>>({
         auth: this.#auth,
@@ -559,7 +628,7 @@ export class Client {
     listUserPinnedLists: (
       id: string,
       params: TwitterParams<listUserPinnedLists> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listUserPinnedLists>> =>
       rest<TwitterResponse<listUserPinnedLists>>({
         auth: this.#auth,
@@ -582,7 +651,7 @@ export class Client {
     listUserPin: (
       id: string,
       request_body: TwitterBody<listUserPin>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listUserPin>> =>
       rest<TwitterResponse<listUserPin>>({
         auth: this.#auth,
@@ -605,7 +674,7 @@ export class Client {
     listUserUnpin: (
       id: string,
       list_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<listUserUnpin>> =>
       rest<TwitterResponse<listUserUnpin>>({
         auth: this.#auth,
@@ -634,7 +703,7 @@ export class Client {
     */
     findSpacesByIds: (
       params: TwitterParams<findSpacesByIds>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findSpacesByIds>> =>
       rest<TwitterResponse<findSpacesByIds>>({
         auth: this.#auth,
@@ -655,7 +724,7 @@ export class Client {
     */
     findSpacesByCreatorIds: (
       params: TwitterParams<findSpacesByCreatorIds>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findSpacesByCreatorIds>> =>
       rest<TwitterResponse<findSpacesByCreatorIds>>({
         auth: this.#auth,
@@ -676,7 +745,7 @@ export class Client {
     */
     searchSpaces: (
       params: TwitterParams<searchSpaces>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<searchSpaces>> =>
       rest<TwitterResponse<searchSpaces>>({
         auth: this.#auth,
@@ -699,7 +768,7 @@ export class Client {
     findSpaceById: (
       id: string,
       params: TwitterParams<findSpaceById> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findSpaceById>> =>
       rest<TwitterResponse<findSpaceById>>({
         auth: this.#auth,
@@ -722,7 +791,7 @@ export class Client {
     spaceBuyers: (
       id: string,
       params: TwitterParams<spaceBuyers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<spaceBuyers>> =>
       paginate<TwitterResponse<spaceBuyers>>({
         auth: this.#auth,
@@ -745,7 +814,7 @@ export class Client {
     spaceTweets: (
       id: string,
       params: TwitterParams<spaceTweets> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<spaceTweets>> =>
       rest<TwitterResponse<spaceTweets>>({
         auth: this.#auth,
@@ -777,7 +846,7 @@ export class Client {
     listsIdTweets: (
       id: string,
       params: TwitterParams<listsIdTweets> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<listsIdTweets>> =>
       paginate<TwitterResponse<listsIdTweets>>({
         auth: this.#auth,
@@ -798,7 +867,7 @@ export class Client {
     */
     findTweetsById: (
       params: TwitterParams<findTweetsById>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findTweetsById>> =>
       rest<TwitterResponse<findTweetsById>>({
         auth: this.#auth,
@@ -819,7 +888,7 @@ export class Client {
     */
     createTweet: (
       request_body: TwitterBody<createTweet>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<createTweet>> =>
       rest<TwitterResponse<createTweet>>({
         auth: this.#auth,
@@ -840,7 +909,7 @@ export class Client {
     */
     tweetCountsFullArchiveSearch: (
       params: TwitterParams<tweetCountsFullArchiveSearch>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<
       TwitterResponse<tweetCountsFullArchiveSearch>
     > =>
@@ -863,13 +932,34 @@ export class Client {
     */
     tweetCountsRecentSearch: (
       params: TwitterParams<tweetCountsRecentSearch>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<tweetCountsRecentSearch>> =>
       paginate<TwitterResponse<tweetCountsRecentSearch>>({
         auth: this.#auth,
         ...this.#defaultRequestOptions,
         ...request_options,
         endpoint: `/2/tweets/counts/recent`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Firehose stream
+    *
+
+    * Streams 100% of public Tweets.
+    * @param params - The params for getTweetsFirehoseStream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsFirehoseStream: (
+      params: TwitterParams<getTweetsFirehoseStream>,
+      request_options?: Partial<RequestOptions>
+    ): AsyncGenerator<TwitterResponse<getTweetsFirehoseStream>> =>
+      stream<TwitterResponse<getTweetsFirehoseStream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/firehose/stream`,
         params,
         method: "GET",
       }),
@@ -884,13 +974,34 @@ export class Client {
     */
     sampleStream: (
       params: TwitterParams<sampleStream> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): AsyncGenerator<TwitterResponse<sampleStream>> =>
       stream<TwitterResponse<sampleStream>>({
         auth: this.#auth,
         ...this.#defaultRequestOptions,
         ...request_options,
         endpoint: `/2/tweets/sample/stream`,
+        params,
+        method: "GET",
+      }),
+
+    /**
+    * Sample 10% stream
+    *
+
+    * Streams a deterministic 10% of public Tweets.
+    * @param params - The params for getTweetsSample10Stream
+    * @param request_options - Customize the options for this request
+    */
+    getTweetsSample10Stream: (
+      params: TwitterParams<getTweetsSample10Stream>,
+      request_options?: Partial<RequestOptions>
+    ): AsyncGenerator<TwitterResponse<getTweetsSample10Stream>> =>
+      stream<TwitterResponse<getTweetsSample10Stream>>({
+        auth: this.#auth,
+        ...this.#defaultRequestOptions,
+        ...request_options,
+        endpoint: `/2/tweets/sample10/stream`,
         params,
         method: "GET",
       }),
@@ -905,7 +1016,7 @@ export class Client {
     */
     tweetsFullarchiveSearch: (
       params: TwitterParams<tweetsFullarchiveSearch>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<tweetsFullarchiveSearch>> =>
       paginate<TwitterResponse<tweetsFullarchiveSearch>>({
         auth: this.#auth,
@@ -926,7 +1037,7 @@ export class Client {
     */
     tweetsRecentSearch: (
       params: TwitterParams<tweetsRecentSearch>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<tweetsRecentSearch>> =>
       paginate<TwitterResponse<tweetsRecentSearch>>({
         auth: this.#auth,
@@ -947,7 +1058,7 @@ export class Client {
     */
     searchStream: (
       params: TwitterParams<searchStream> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): AsyncGenerator<TwitterResponse<searchStream>> =>
       stream<TwitterResponse<searchStream>>({
         auth: this.#auth,
@@ -968,7 +1079,7 @@ export class Client {
     */
     getRules: (
       params: TwitterParams<getRules> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<getRules>> =>
       paginate<TwitterResponse<getRules>>({
         auth: this.#auth,
@@ -991,7 +1102,7 @@ export class Client {
     addOrDeleteRules: (
       request_body: TwitterBody<addOrDeleteRules>,
       params: TwitterParams<addOrDeleteRules> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<addOrDeleteRules>> =>
       rest<TwitterResponse<addOrDeleteRules>>({
         auth: this.#auth,
@@ -1013,7 +1124,7 @@ export class Client {
     */
     deleteTweetById: (
       id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<deleteTweetById>> =>
       rest<TwitterResponse<deleteTweetById>>({
         auth: this.#auth,
@@ -1035,7 +1146,7 @@ export class Client {
     findTweetById: (
       id: string,
       params: TwitterParams<findTweetById> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findTweetById>> =>
       rest<TwitterResponse<findTweetById>>({
         auth: this.#auth,
@@ -1058,7 +1169,7 @@ export class Client {
     findTweetsThatQuoteATweet: (
       id: string,
       params: TwitterParams<findTweetsThatQuoteATweet> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<findTweetsThatQuoteATweet>> =>
       paginate<TwitterResponse<findTweetsThatQuoteATweet>>({
         auth: this.#auth,
@@ -1081,7 +1192,7 @@ export class Client {
     hideReplyById: (
       tweet_id: string,
       request_body: TwitterBody<hideReplyById>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<hideReplyById>> =>
       rest<TwitterResponse<hideReplyById>>({
         auth: this.#auth,
@@ -1104,7 +1215,7 @@ export class Client {
     usersIdLikedTweets: (
       id: string,
       params: TwitterParams<usersIdLikedTweets> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdLikedTweets>> =>
       paginate<TwitterResponse<usersIdLikedTweets>>({
         auth: this.#auth,
@@ -1127,7 +1238,7 @@ export class Client {
     usersIdLike: (
       id: string,
       request_body: TwitterBody<usersIdLike>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdLike>> =>
       rest<TwitterResponse<usersIdLike>>({
         auth: this.#auth,
@@ -1150,7 +1261,7 @@ export class Client {
     usersIdUnlike: (
       id: string,
       tweet_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdUnlike>> =>
       rest<TwitterResponse<usersIdUnlike>>({
         auth: this.#auth,
@@ -1172,7 +1283,7 @@ export class Client {
     usersIdMentions: (
       id: string,
       params: TwitterParams<usersIdMentions> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdMentions>> =>
       paginate<TwitterResponse<usersIdMentions>>({
         auth: this.#auth,
@@ -1195,7 +1306,7 @@ export class Client {
     usersIdRetweets: (
       id: string,
       request_body: TwitterBody<usersIdRetweets>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdRetweets>> =>
       rest<TwitterResponse<usersIdRetweets>>({
         auth: this.#auth,
@@ -1218,7 +1329,7 @@ export class Client {
     usersIdUnretweets: (
       id: string,
       source_tweet_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdUnretweets>> =>
       rest<TwitterResponse<usersIdUnretweets>>({
         auth: this.#auth,
@@ -1240,7 +1351,7 @@ export class Client {
     usersIdTimeline: (
       id: string,
       params: TwitterParams<usersIdTimeline> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdTimeline>> =>
       paginate<TwitterResponse<usersIdTimeline>>({
         auth: this.#auth,
@@ -1263,7 +1374,7 @@ export class Client {
     usersIdTweets: (
       id: string,
       params: TwitterParams<usersIdTweets> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdTweets>> =>
       paginate<TwitterResponse<usersIdTweets>>({
         auth: this.#auth,
@@ -1295,7 +1406,7 @@ export class Client {
     listGetFollowers: (
       id: string,
       params: TwitterParams<listGetFollowers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<listGetFollowers>> =>
       paginate<TwitterResponse<listGetFollowers>>({
         auth: this.#auth,
@@ -1318,7 +1429,7 @@ export class Client {
     listGetMembers: (
       id: string,
       params: TwitterParams<listGetMembers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<listGetMembers>> =>
       paginate<TwitterResponse<listGetMembers>>({
         auth: this.#auth,
@@ -1341,7 +1452,7 @@ export class Client {
     tweetsIdLikingUsers: (
       id: string,
       params: TwitterParams<tweetsIdLikingUsers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<tweetsIdLikingUsers>> =>
       paginate<TwitterResponse<tweetsIdLikingUsers>>({
         auth: this.#auth,
@@ -1364,7 +1475,7 @@ export class Client {
     tweetsIdRetweetingUsers: (
       id: string,
       params: TwitterParams<tweetsIdRetweetingUsers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<tweetsIdRetweetingUsers>> =>
       paginate<TwitterResponse<tweetsIdRetweetingUsers>>({
         auth: this.#auth,
@@ -1385,7 +1496,7 @@ export class Client {
     */
     findUsersById: (
       params: TwitterParams<findUsersById>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findUsersById>> =>
       rest<TwitterResponse<findUsersById>>({
         auth: this.#auth,
@@ -1406,7 +1517,7 @@ export class Client {
     */
     findUsersByUsername: (
       params: TwitterParams<findUsersByUsername>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findUsersByUsername>> =>
       rest<TwitterResponse<findUsersByUsername>>({
         auth: this.#auth,
@@ -1429,7 +1540,7 @@ export class Client {
     findUserByUsername: (
       username: string,
       params: TwitterParams<findUserByUsername> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findUserByUsername>> =>
       rest<TwitterResponse<findUserByUsername>>({
         auth: this.#auth,
@@ -1450,7 +1561,7 @@ export class Client {
     */
     findMyUser: (
       params: TwitterParams<findMyUser> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findMyUser>> =>
       rest<TwitterResponse<findMyUser>>({
         auth: this.#auth,
@@ -1473,7 +1584,7 @@ export class Client {
     findUserById: (
       id: string,
       params: TwitterParams<findUserById> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<findUserById>> =>
       rest<TwitterResponse<findUserById>>({
         auth: this.#auth,
@@ -1496,7 +1607,7 @@ export class Client {
     usersIdBlocking: (
       id: string,
       params: TwitterParams<usersIdBlocking> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdBlocking>> =>
       paginate<TwitterResponse<usersIdBlocking>>({
         auth: this.#auth,
@@ -1519,7 +1630,7 @@ export class Client {
     usersIdBlock: (
       id: string,
       request_body: TwitterBody<usersIdBlock>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdBlock>> =>
       rest<TwitterResponse<usersIdBlock>>({
         auth: this.#auth,
@@ -1531,10 +1642,10 @@ export class Client {
       }),
 
     /**
-    * Returns User objects that follow a List by the provided User ID
+    * Followers by User ID
     *
 
-    * Returns a list of Users that follow the provided User ID
+    * Returns a list of Users who are followers of the specified User ID.
     * @param id - The ID of the User to lookup.
     * @param params - The params for usersIdFollowers
     * @param request_options - Customize the options for this request
@@ -1542,7 +1653,7 @@ export class Client {
     usersIdFollowers: (
       id: string,
       params: TwitterParams<usersIdFollowers> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdFollowers>> =>
       paginate<TwitterResponse<usersIdFollowers>>({
         auth: this.#auth,
@@ -1565,7 +1676,7 @@ export class Client {
     usersIdFollowing: (
       id: string,
       params: TwitterParams<usersIdFollowing> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdFollowing>> =>
       paginate<TwitterResponse<usersIdFollowing>>({
         auth: this.#auth,
@@ -1588,7 +1699,7 @@ export class Client {
     usersIdFollow: (
       id: string,
       request_body: TwitterBody<usersIdFollow>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdFollow>> =>
       rest<TwitterResponse<usersIdFollow>>({
         auth: this.#auth,
@@ -1611,7 +1722,7 @@ export class Client {
     usersIdMuting: (
       id: string,
       params: TwitterParams<usersIdMuting> = {},
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): TwitterPaginatedResponse<TwitterResponse<usersIdMuting>> =>
       paginate<TwitterResponse<usersIdMuting>>({
         auth: this.#auth,
@@ -1634,7 +1745,7 @@ export class Client {
     usersIdMute: (
       id: string,
       request_body: TwitterBody<usersIdMute>,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdMute>> =>
       rest<TwitterResponse<usersIdMute>>({
         auth: this.#auth,
@@ -1657,7 +1768,7 @@ export class Client {
     usersIdUnblock: (
       source_user_id: string,
       target_user_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdUnblock>> =>
       rest<TwitterResponse<usersIdUnblock>>({
         auth: this.#auth,
@@ -1679,7 +1790,7 @@ export class Client {
     usersIdUnfollow: (
       source_user_id: string,
       target_user_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdUnfollow>> =>
       rest<TwitterResponse<usersIdUnfollow>>({
         auth: this.#auth,
@@ -1701,7 +1812,7 @@ export class Client {
     usersIdUnmute: (
       source_user_id: string,
       target_user_id: string,
-      request_options?: Partial<RequestOptions>,
+      request_options?: Partial<RequestOptions>
     ): Promise<TwitterResponse<usersIdUnmute>> =>
       rest<TwitterResponse<usersIdUnmute>>({
         auth: this.#auth,
